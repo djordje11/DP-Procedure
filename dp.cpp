@@ -18,6 +18,21 @@ void DP::print_Cnf(const Cnf& F)
     std::cout << "********************************" << std::endl;
 }
 
+std::istream& operator>>(std::istream& istr, Cnf& f) 
+{
+    f.empty();
+    int x;
+    while(istr >> x)
+    {
+        f.push_back({});
+        auto it = f.end()-1;
+        it->insert(x);
+        while(istr >> x && x != 0)
+            it->insert(x);
+    }
+    return istr;
+}
+
 int DP::find_literal_in_unit_clause(Cnf& F) 
 {
     auto it = std::find_if(F.cbegin(), F.cend(), 

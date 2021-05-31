@@ -3,6 +3,7 @@
 
 #include <set>
 #include <vector>
+#include <iostream>
 using Clause = std::set<int>;
 using Cnf = std::vector<Clause>;
 
@@ -51,4 +52,8 @@ public:
    void print_Cnf(const Cnf& F);
    bool is_satisfiable(const Cnf& F); 
 };
+
+
+std::istream& operator>>(std::istream&, Cnf& f);
+
 #endif // __DP_H__

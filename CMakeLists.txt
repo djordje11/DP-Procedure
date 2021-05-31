@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project (automatsko-rezonovanje)
+project (dp-procedure)
 
 set(FORMULAS_SRC
     dp.cpp
