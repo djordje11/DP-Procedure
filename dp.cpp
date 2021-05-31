@@ -134,28 +134,41 @@ void DP::mv_clauses_containing_literal(Cnf& F, int p, Cnf& F_pos, Cnf& F_neg)
 {
    // F_pos.clear();
   //  F_neg.clear();
-    for(auto it = F.begin(); it != F.end(); ++it)
+    for(auto it = F.begin(); it != F.end(); )
     {
         auto jt = it->find(p);
+        auto zt = it->find(-1 * p);
+
+        if(jt != it->end() && zt != it->end())
+        {
+            it = F.erase(it);
+            continue;
+        }
         if(jt != it->end())
         {
             it->erase(jt);
             F_pos.push_back(std::move(*it));
+            it = F.erase(it);
             continue;
         }
-        jt = it->find(-1 * p);
-        if(jt != it->end())
+        if(zt != it->end())
         {
-            it->erase(jt); 
+            it->erase(zt); 
             F_neg.push_back(std::move(*it));
+            it = F.erase(it);
+            continue;
         }
+        ++it;
     }
 }
 
-void DP::clause_union(Clause& a, Clause& b) 
+void DP::clause_union(Clause& a, Clause& b, Clause& c) 
 {
-    std::for_each(b.begin(), b.end(), [&a](auto it) {
-        a.insert(it);
+    std::for_each(b.begin(), b.end(), [&c](auto it) {
+        c.insert(it);
+    });
+    std::for_each(a.begin(), a.end(), [&c](auto it) {
+        c.insert(it);
     });
 }
 
@@ -165,8 +178,9 @@ void DP::cross_product(Cnf& a, Cnf&b, Cnf& c)
     {
        for(auto jt = b.begin(); jt != b.end(); ++jt)
        {
-           clause_union(*it, *jt);
-           c.push_back(std::move(*it));
+           Clause cl;
+           clause_union(*it, *jt, cl);
+           c.push_back(std::move(cl));
        } 
     }
 
@@ -177,8 +191,17 @@ void DP::third_rule(Cnf& F)
     int rand_literal = get_random_literal(F); 
     Cnf F_pos, F_neg;
     mv_clauses_containing_literal(F, rand_literal, F_pos, F_neg);
+    cross_product(F_pos, F_neg, F);
+}
 
+bool DP::have_empty_clause(Cnf& c) 
+{
+    return std::any_of(c.begin(), c.end(), [](auto it) { return it.size() == 0;});
+}
 
+bool DP::is_clause_empty(Cnf& c) 
+{
+    return c.size() == 0;
 }
 
 
@@ -188,12 +211,15 @@ bool DP::is_satisfiable(const Cnf& F)
 
     while(1) 
     {
+        if(have_empty_clause(formula))
+            return false;
+        if(is_clause_empty(formula))
+            return true;
         if(first_rule(formula))
             continue;
         if(second_rule(formula))
             continue; 
-
-
+        third_rule(formula);
 
     }
 }

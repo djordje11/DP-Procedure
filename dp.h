@@ -34,9 +34,13 @@ class DP
 
    void mv_clauses_containing_literal(Cnf& F, int p, Cnf& F_pos, Cnf& F_neg);
 
-   void clause_union(Clause& a, Clause& b);
+   void clause_union(Clause& a, Clause& b, Clause& c);
 
    void cross_product(Cnf& a, Cnf&b, Cnf& c);
+
+   bool have_empty_clause(Cnf& c);
+
+   bool is_clause_empty(Cnf& c);
 public:
    DP();
 
